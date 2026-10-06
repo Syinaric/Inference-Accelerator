@@ -13,12 +13,17 @@ export SEED
 export K
 export N
 
-VERILOG_SOURCES += $(PWD)/rtl/$(MODULE_NAME).sv
+# Find RTL by module name inside any block folder (systolic_array/rtl, memory/rtl, ...)
+RTL_ALL := $(wildcard $(PWD)/*/rtl/*.sv)
+VERILOG_SOURCES += $(filter %/$(MODULE_NAME).sv,$(RTL_ALL))
 
 COCOTB_TOPLEVEL     = $(MODULE_NAME)
 COCOTB_TEST_MODULES = test_$(MODULE_NAME)
 
-export PYTHONPATH := $(PWD)/tb:$(PWD)/model:$(PYTHONPATH)
+# Every block's tb/ and model/ folder is importable, so imports stay flat
+empty :=
+space := $(empty) $(empty)
+export PYTHONPATH := $(subst $(space),:,$(wildcard $(PWD)/*/tb $(PWD)/*/model)):$(PYTHONPATH)
 
 COMPILE_ARGS += -g2012
 
@@ -36,7 +41,7 @@ endif
 
 # The array pulls in its children. Icarus does not care about file order.
 ifeq ($(MODULE_NAME),systolic_array)
-VERILOG_SOURCES += $(PWD)/rtl/pe.sv $(PWD)/rtl/delay.sv
+VERILOG_SOURCES += $(PWD)/systolic_array/rtl/pe.sv $(PWD)/systolic_array/rtl/delay.sv
 COMPILE_ARGS += -Psystolic_array.N=$(N)
 COMPILE_ARGS += -Psystolic_array.DATA_WIDTH=$(DATA_WIDTH)
 COMPILE_ARGS += -Psystolic_array.ACC_WIDTH=$(ACC_WIDTH)
