@@ -27,13 +27,14 @@ jobs:
 
       - name: Run DEPTH sweep
         run: make sweep
+
       - name: pe sweep
         run: make sweep-pe
 
       - name: Golden model self-tests
         run: |
-          PYTHONPATH=model python model/pe_model.py
-          PYTHONPATH=model python model/systolic_array_model.py
+          PYTHONPATH=systolic_array/model python systolic_array/model/pe_model.py
+          PYTHONPATH=systolic_array/model python systolic_array/model/systolic_array_model.py
 
       - name: systolic array sweep
         run: make sweep-array
@@ -44,3 +45,4 @@ jobs:
         with:
           name: cocotb-results
           path: '**/results.xml'
+          
